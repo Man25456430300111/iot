@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta  content="10" /> 
+  {{!-- <meta http-equiv="refresh" content="10" /> --}}
+  <title>tracking</title>
+  <link rel="stylesheet" type="text/css" href="../assets/js/core/jquery.dataTables.min.css">
+  <script type="text/javascript" language="javascript" src="../assets/js/core/jquery-1.12.0.min.js"></script>
+  <script type="text/javascript" src="../assets/js/core/jquery.dataTables.min.js">
+  </script>
+  
+  <script>
+    $(document).ready(function () {
+      $('#example').DataTable();
+    });
+  </script>
+</head>
+
+
+<body>
+  {{>navbar}}
+  <header>
+    <br> </br>
+    <br> </br>
+    <div class="card">
+
+
+      <table id="example" class="display" cellspacing="0">
+        <!--ส่วนหัว-->
+        <thead>
+          <tr>
+            <th>ชื่ออุปกรณ์</th>
+            <th>การกระทำ</th>
+            <th>เวลา</th>
+
+          </tr>
+        </thead>
+
+        <!-- ส่วนท้าย -->
+        <tfoot>
+          <tr>
+            <th>ชื่ออุปกรณ์</th>
+            <th>การกระทำ</th>
+            <th>เวลา</th>
+          </tr>
+        </tfoot>
+        <!--ส่วนเนื้อหา -->
+        <tbody>
+
+          {{#each log}}
+          <tr align="center">
+            <td>
+              {{this.device}}
+              
+            </td>
+            <td>
+              {{this.status}}
+            </td>
+            <td>
+              {{this.time}}
+
+            </td>
+
+          </tr>
+          {{/each}}
+        </tbody>
+
+      </table>
+
+    </div>
+  </header>
+</body>
+
+</html>
+<script>
+
+
+  if (log && log.length > 0) {
+    log มีข้อมูล ดำเนินการต่อไป
+    console.log("There are items in 'log'");
+  } else {
+    log ไม่มีข้อมูล
+    console.log("There are no items in 'log'");
+  }
+</script>
