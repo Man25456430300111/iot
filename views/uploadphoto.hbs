@@ -26,13 +26,12 @@
             const formData = new FormData();
             const fileInput = document.getElementById('photoInput');
             formData.append('photo', fileInput.files[0]);
-
+            console.log(formData);
             try {
-                const response = await fetch('/uploadphoto2', {
+                const response = await fetch('/uploadpho2', {
                     method: 'POST',
                     body: formData
                 });
-                console.log("asd");
                 if (response.ok) {
                     const data = await response.json();
                     console.log(data.message);

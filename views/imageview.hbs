@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Display All Images</title>
+</head>
+{{>navbar}}
+<body>
+  <h1>All Images</h1>
+  <div id="image-container">
+    <!-- Images will be displayed here -->
+  </div>
+  
+  <script>
+    fetch('/getallimages')
+      .then(response => response.json())
+      .then(data => {
+        const imageUrls = data.imageUrls;
+        const imageContainer = document.getElementById('image-container');
+        
+        // Display each image
+        imageUrls.forEach(imageUrl => {
+          const img = document.createElement('img');
+          img.src = imageUrl;
+          img.alt = 'Image';
+          imageContainer.appendChild(img);
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching images:', error);
+      });
+  </script>
+</body>
+</html>

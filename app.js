@@ -9,8 +9,8 @@ var path = require('path');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 const multer = require('multer');
-
-
+const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
 var app = express();
 app.use(express.urlencoded());
 app.use(express.json());
@@ -135,9 +135,14 @@ wss.on('connection', async function connection(wssLocal) {
 
 
 
-mongoose.connect('mongodb+srv://tonkaowrl:tonkaow3690@tonkaoww.cbmwzby.mongodb.net/', {
+mongoose.connect('mongodb+srv://tonkaowrl:tonkaow3690@tonkaoww.cbmwzby.mongodb.net/man1', {
   useNewUrlParser: true
 });
+
+const photo = new mongoose.Schema({
+  time: { type: Date, default: Date.now },
+  url: { type: String, required: true }
+}, { collection: 'pho' });
 
 app.get('/', function (req, res, next) {
   res.render('index', { title: 'Express' });
@@ -165,27 +170,73 @@ app.get('/setting', async (req, res) => {
   //console.log(log)
   const log = Status.find();
   //var log={};
-  //log=[{"type": "Delete","devicename": "pump1", "username":"admin","action": "ON","time": "00"}]
+  //log=[{"type": "Delete","devicename": "pump1const { v4: uuidv4 } = require('uuid');", "username":"admin","action": "ON","time": "00"}]
   res.render("setting", { log: log })
 
 });
 app.get('/uploadphoto', async (req, res) => {
   //const log = await managementlog.find();
   //console.log(log)
-  const log =await Status.find();
+  const log = await Status.find();
   //var log={};
   //log=[{"type": "Delete","devicename": "pump1", "username":"admin","action": "ON","time": "00"}]
   res.render("uploadphoto", { log: log })
 
 });
-const upload = multer({ dest: 'photo/' }); 
+app.get('/imageview', async (req, res) => {
+  //const log = await managementlog.find();
+  //console.log(log)
+  const log = await Status.find();
+  //var log={};
+  //log=[{"type": "Delete","devicename": "pump1", "username":"admin","action": "ON","time": "00"}]
+  res.render("imageview", { log: log })
+
+});
+const upload = multer({ dest: 'uploads/' });
 app.post('/uploadpho2', upload.single('photo'), (req, res) => {
-  fs.rename(req.file.path, 'path/to/save/' + req.file.originalname, (err) => {
-      if (err) {
-          return res.status(500).json({ error: err });
-      }
-      res.status(200).json({ message: 'File saved successfully!' });
+
+  const uniqueFilename = uuidv4() + path.extname(req.file.originalname);
+  const uploadPath = path.join(__dirname, 'images', uniqueFilename);
+
+  // Rename and move the uploaded file to the images directory
+  fs.rename(req.file.path, uploadPath, (err) => {
+    if (err) {
+      return res.status(500).json({ error: err });
+    }
+    const MyModel = mongoose.model('MyModel', photo);
+
+    // Create an instance of MyModel and save it to 'man1' collection
+    const newData = new MyModel({
+      url: 'http://localhost:3002/uploads/'+uniqueFilename
+    });
+
+    newData.save()
+      .then((result) => {
+        console.log('Data saved successfully:', result);
+      })
+      .catch((error) => {
+        console.error('Error saving data:', error);
+      });
+    res.status(200).json({ message: 'File saved successfully!', filename: uniqueFilename });
   });
+});
+app.use('/uploads', express.static(path.join(__dirname, 'images')));
+ 
+ app.get('/getallimages', async (req, res) => {
+  try {
+    const MyModel = mongoose.model('MyModel', photo);
+    const data = await MyModel.find();
+    if (!data || data.length === 0) {
+      return res.status(404).json({ error: 'No images found' });
+    }
+
+    // Send the URLs of all images to the client
+    const imageUrls = data.map(doc => doc.url);
+    res.json({ imageUrls });
+  } catch (error) {
+    console.error('Error retrieving images:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 app.get('/aboutus', async (req, res) => {
 
@@ -219,6 +270,7 @@ app.post('/sethum', (req, res) => {
 
 var mqtt = require('mqtt');
 const { type } = require('os');
+const { Db } = require('mongodb');
 
 const MQTT_SERVER = "m15.cloudmqtt.com";
 const MQTT_PORT = "12987";
@@ -289,57 +341,57 @@ client.on('message', async function (topic, message) {
         console.log(error);
       });
   }
-  else if (topic == "waterserver"){
+  else if (topic == "waterserver") {
     var waterbotton = message.toString();
-    axios.post('http://localhost:3002/status',{
-      device:"Water",
-      status:waterbotton
+    axios.post('http://localhost:3002/status', {
+      device: "Water",
+      status: waterbotton
     })
-    .then(function (response) {
-      console.log(response);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   }
-  else if (topic == "sprayserver"){
+  else if (topic == "sprayserver") {
     var sprayserver = message.toString();
-    axios.post('http://localhost:3002/status',{
-      device:"Spray",
-      status:sprayserver
+    axios.post('http://localhost:3002/status', {
+      device: "Spray",
+      status: sprayserver
     })
-    .then(function (response) {
-      console.log(response);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   }
-  else if (topic == "lightserver"){
+  else if (topic == "lightserver") {
     var lightserver = message.toString();
-    axios.post('http://localhost:3002/status',{
-      device:"Light",
-      status:lightserver
+    axios.post('http://localhost:3002/status', {
+      device: "Light",
+      status: lightserver
     })
-    .then(function (response) {
-      console.log(response);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   }
-  else if (topic == "puiserver"){
+  else if (topic == "puiserver") {
     var puiserver = message.toString();
-    axios.post('http://localhost:3002/status',{
-      device:"fertilizer",
-      status:puiserver
+    axios.post('http://localhost:3002/status', {
+      device: "fertilizer",
+      status: puiserver
     })
-    .then(function (response) {
-      console.log(response);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   }
   console.log(message.toString());
 });
