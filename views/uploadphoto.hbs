@@ -1,0 +1,49 @@
+<!-- uploadphoto.hbs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Photo</title>
+</head>
+{{>navbar}}
+<body>
+    <h1>Upload Photo</h1>
+    <form id="uploadForm"  method="post" enctype="multipart/form-data">
+        <input type="file" id="photoInput" name="photo" accept="image/*">
+        <button type="submit">Upload</button>
+    </form>
+
+    <h2>Uploaded Photos</h2>
+    <div id="photo-container">
+        <!-- Photos will be displayed here -->
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent default form submission
+
+            const formData = new FormData();
+            const fileInput = document.getElementById('photoInput');
+            formData.append('photo', fileInput.files[0]);
+
+            try {
+                const response = await fetch('/uploadphoto2', {
+                    method: 'POST',
+                    body: formData
+                });
+                console.log("asd");
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data.message);
+                    // You can update UI here if needed
+                } else {
+                    throw new Error('File upload failed');
+                }
+            } catch (error) {
+                console.error('Error uploading file:', error);
+            }
+        });
+    </script>
+</body>
+</html>

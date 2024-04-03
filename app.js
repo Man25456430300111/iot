@@ -8,7 +8,7 @@ const hbs = require('hbs');
 var path = require('path');
 const bodyParser = require('body-parser');
 const axios = require('axios');
-
+const multer = require('multer');
 
 
 var app = express();
@@ -168,6 +168,24 @@ app.get('/setting', async (req, res) => {
   //log=[{"type": "Delete","devicename": "pump1", "username":"admin","action": "ON","time": "00"}]
   res.render("setting", { log: log })
 
+});
+app.get('/uploadphoto', async (req, res) => {
+  //const log = await managementlog.find();
+  //console.log(log)
+  const log =await Status.find();
+  //var log={};
+  //log=[{"type": "Delete","devicename": "pump1", "username":"admin","action": "ON","time": "00"}]
+  res.render("uploadphoto", { log: log })
+
+});
+const upload = multer({ dest: 'photo/' }); 
+app.post('/uploadpho2', upload.single('photo'), (req, res) => {
+  fs.rename(req.file.path, 'path/to/save/' + req.file.originalname, (err) => {
+      if (err) {
+          return res.status(500).json({ error: err });
+      }
+      res.status(200).json({ message: 'File saved successfully!' });
+  });
 });
 app.get('/aboutus', async (req, res) => {
 
