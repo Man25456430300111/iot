@@ -195,8 +195,8 @@ app.get('/imageview', async (req, res) => {
 const upload = multer({ dest: 'uploads/' });
 app.post('/uploadpho2', upload.single('photo'), (req, res) => {
 
-  const uniqueFilename = uuidv4() + path.extname(req.file.originalname);
-  const uploadPath = path.join(__dirname, 'images', uniqueFilename);
+  const uniqueFilename = uuidv4() + path.extname(req.file.originalname); // uuid gen name 
+  const uploadPath = path.join(__dirname, 'images', uniqueFilename); // image/asdsad-hjgdaduiha-asdkjsad
 
   // Rename and move the uploaded file to the images directory
   fs.rename(req.file.path, uploadPath, (err) => {
@@ -220,12 +220,12 @@ app.post('/uploadpho2', upload.single('photo'), (req, res) => {
     res.status(200).json({ message: 'File saved successfully!', filename: uniqueFilename });
   });
 });
-app.use('/uploads', express.static(path.join(__dirname, 'images')));
+app.use('/uploads', express.static(path.join(__dirname, 'images'))); // /uploads/asdsadsa
  
  app.get('/getallimages', async (req, res) => {
   try {
     const MyModel = mongoose.model('MyModel', photo);
-    const data = await MyModel.find();
+    const data = await MyModel.find().sort({ time: -1 });
     if (!data || data.length === 0) {
       return res.status(404).json({ error: 'No images found' });
     }
